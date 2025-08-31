@@ -1,5 +1,6 @@
 import { CheckboxI, NoteI } from './../../interfaces/notes';
-import { Component, OnInit, ViewChild, ElementRef, ViewChildren, QueryList } from '@angular/core';
+import { Component, OnInit, ViewChild, ElementRef, ViewChildren, QueryList, AfterViewInit } from '@angular/core';
+
 // @ts-ignore
 import Bricks from 'bricks.js'
 import { SharedService } from 'src/app/services/shared.service';
@@ -11,7 +12,7 @@ import { ActivationEnd, NavigationEnd, Router } from '@angular/router';
   templateUrl: './notes.component.html',
   styleUrls: ['./notes.component.scss'],
 })
-export class NotesComponent implements OnInit {
+export class NotesComponent implements OnInit, AfterViewInit {
   constructor(public Shared: SharedService, private router: Router) { }
 
   @ViewChild("mainContainer") mainContainer!: ElementRef<HTMLInputElement>
@@ -232,5 +233,30 @@ export class NotesComponent implements OnInit {
       }
       this.currentPageName = this.currentPage.label ? this.currentPage.label : this.currentPage.archive ? 'archived' : (this.currentPage.trash ? 'trashed' : 'home')
     })
+  }
+  
+   ngAfterViewInit() {
+    this.noteEl.changes.subscribe(() => {
+      this.noteEl.toArray().forEach(el => {
+        this.addResizeSnap(el.nativeElement);
+      });
+    });
+  }
+
+    addResizeSnap(element: HTMLElement) {
+    let resizeObserver = new ResizeObserver(() => {
+      let gutter = 10;
+      let noteWidth = this.noteWidth + gutter;
+      let colWidth = noteWidth;
+      let rowHeight = 10;
+
+      let newWidth = Math.round(element.offsetWidth / colWidth) * colWidth - gutter;
+      let newHeight = Math.round(element.offsetHeight / rowHeight) * rowHeight;
+
+      element.style.width = newWidth + 'px';
+      element.style.height = newHeight + 'px';
+      this.buildMasonry();
+    });
+    resizeObserver.observe(element);
   }
 }
