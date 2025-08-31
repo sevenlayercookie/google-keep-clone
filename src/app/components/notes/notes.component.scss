@@ -23,6 +23,8 @@
   width: var(--note-width);
   transition: all 0.3s;
   position: relative;
+  resize: both;
+  overflow: auto;
 
   .note-badge {
     position: absolute;
